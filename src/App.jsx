@@ -4,14 +4,32 @@ import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
 
+function getHashId() {
+  const m = window.location.hash.match(/^#\/project\/(.+)$/)
+  return m ? m[1] : null
+}
+
 export default function App() {
   const [projects, setProjects] = useLocalStorage('a11y-projects', [])
-  const [activeProjectId, setActiveProjectId] = useState(null)
+  const [activeProjectId, setActiveProjectId] = useState(getHashId)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
+
+  useEffect(() => {
+    const newHash = activeProjectId ? `#/project/${activeProjectId}` : '#'
+    if (window.location.hash !== newHash) window.location.hash = newHash
+  }, [activeProjectId])
+
+  useEffect(() => {
+    function onHashChange() {
+      setActiveProjectId(getHashId())
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
 
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
