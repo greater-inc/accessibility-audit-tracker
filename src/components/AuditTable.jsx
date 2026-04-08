@@ -184,7 +184,7 @@ export default function AuditTable({
                   <th
                     key={cat.id}
                     colSpan={colSpan}
-                    className={`border-b border-r border-gray-700 text-center align-middle px-0 overflow-hidden ${cat.headerBg}`}
+                    className={`border-b border-r border-gray-700 text-center align-middle px-0 ${cat.headerBg}`}
                   >
                     {/* Category toggle button — full cell is clickable */}
                     <button
@@ -194,7 +194,7 @@ export default function AuditTable({
                     >
                       {/* Chevron shows open/closed state clearly */}
                       <span className="text-[10px] shrink-0">{isOpen ? '▾' : '▸'}</span>
-                      <span className="truncate">{cat.name}</span>
+                      <span className="whitespace-nowrap">{cat.name}</span>
                       <span className="opacity-50 text-[10px] whitespace-nowrap">
                         {isOpen ? `${cat.checks.length} checks` : `${cat.checks.length}`}
                       </span>
