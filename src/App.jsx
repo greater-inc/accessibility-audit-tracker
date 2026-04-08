@@ -4,32 +4,43 @@ import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
 
-function getHashId() {
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+function getHashSlug() {
   const m = window.location.hash.match(/^#\/project\/(.+)$/)
   return m ? m[1] : null
 }
 
 export default function App() {
   const [projects, setProjects] = useLocalStorage('a11y-projects', [])
-  const [activeProjectId, setActiveProjectId] = useState(getHashId)
+  const [activeProjectId, setActiveProjectId] = useState(null)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
 
+  // Sync hash → active project (on load and hash changes)
   useEffect(() => {
-    const newHash = activeProjectId ? `#/project/${activeProjectId}` : '#'
-    if (window.location.hash !== newHash) window.location.hash = newHash
-  }, [activeProjectId])
-
-  useEffect(() => {
-    function onHashChange() {
-      setActiveProjectId(getHashId())
+    function resolve() {
+      const slug = getHashSlug()
+      if (!slug) { setActiveProjectId(null); return }
+      const match = projects.find((p) => slugify(p.name) === slug)
+      setActiveProjectId(match ? match.id : null)
     }
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
+    resolve()
+    window.addEventListener('hashchange', resolve)
+    return () => window.removeEventListener('hashchange', resolve)
+  }, [projects])
+
+  // Sync active project → hash
+  useEffect(() => {
+    const project = projects.find((p) => p.id === activeProjectId)
+    const newHash = project ? `#/project/${slugify(project.name)}` : '#'
+    if (window.location.hash !== newHash) window.location.hash = newHash
+  }, [activeProjectId, projects])
 
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
