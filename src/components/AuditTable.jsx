@@ -8,7 +8,7 @@ const ALL_CATEGORY_IDS = CATEGORIES.map((c) => c.id)
 export default function AuditTable({
   project, filter, onUpdateCheck, onUpdateNotes, onDeletePage, onRenamePage,
 }) {
-  const [expanded, setExpanded] = useState(new Set(ALL_CATEGORY_IDS))
+  const [expanded, setExpanded] = useState(new Set())
   const [editingNotes, setEditingNotes] = useState(null)
   const [editingPageId, setEditingPageId] = useState(null)
   const [editingPageName, setEditingPageName] = useState('')
