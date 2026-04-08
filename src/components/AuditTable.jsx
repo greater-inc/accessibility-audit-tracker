@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { CATEGORIES, STATUS_CONFIG } from '../data/checks'
 import { categoryPageStats, pageStats } from '../utils/stats'
 import StatusDot from './StatusDot'
@@ -13,6 +13,53 @@ export default function AuditTable({
   const [editingPageId, setEditingPageId] = useState(null)
   const [editingPageName, setEditingPageName] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(null)
+
+  const scrollRef = useRef(null)
+  const topScrollRef = useRef(null)
+  const isDragging = useRef(false)
+  const dragStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 })
+
+  const syncFromMain = useCallback(() => {
+    if (topScrollRef.current && scrollRef.current)
+      topScrollRef.current.scrollLeft = scrollRef.current.scrollLeft
+  }, [])
+  const syncFromTop = useCallback(() => {
+    if (scrollRef.current && topScrollRef.current)
+      scrollRef.current.scrollLeft = topScrollRef.current.scrollLeft
+  }, [])
+
+  const onMouseDown = useCallback((e) => {
+    if (e.button !== 0) return
+    isDragging.current = true
+    dragStart.current = {
+      x: e.clientX, y: e.clientY,
+      scrollLeft: scrollRef.current.scrollLeft,
+      scrollTop: scrollRef.current.scrollTop,
+    }
+    scrollRef.current.style.cursor = 'grabbing'
+    e.preventDefault()
+  }, [])
+  const onMouseMove = useCallback((e) => {
+    if (!isDragging.current) return
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - (e.clientX - dragStart.current.x)
+    scrollRef.current.scrollTop = dragStart.current.scrollTop - (e.clientY - dragStart.current.y)
+  }, [])
+  const onMouseUp = useCallback(() => {
+    isDragging.current = false
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab'
+  }, [])
+
+  const topScrollInnerRef = useRef(null)
+  useEffect(() => {
+    const update = () => {
+      if (topScrollInnerRef.current && scrollRef.current)
+        topScrollInnerRef.current.style.width = scrollRef.current.scrollWidth + 'px'
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    if (scrollRef.current) ro.observe(scrollRef.current)
+    return () => ro.disconnect()
+  }, [expanded])
 
   const pages = project.pages.filter((page) => {
     if (filter === 'failures') return pageStats(page).fail > 0
@@ -93,8 +140,27 @@ export default function AuditTable({
         </div>
       </div>
 
+      {/* Top scrollbar mirror */}
+      <div
+        ref={topScrollRef}
+        onScroll={syncFromTop}
+        className="overflow-x-auto table-scroll shrink-0"
+        style={{ height: 12 }}
+      >
+        <div ref={topScrollInnerRef} style={{ height: 1 }} />
+      </div>
+
       {/* Scrollable table */}
-      <div className="overflow-auto flex-1 bg-gray-950 table-scroll">
+      <div
+        ref={scrollRef}
+        onScroll={syncFromMain}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        className="overflow-auto flex-1 bg-gray-950 table-scroll"
+        style={{ cursor: 'grab' }}
+      >
         <table className="border-collapse text-xs w-max min-w-full">
           <thead>
             {/*
