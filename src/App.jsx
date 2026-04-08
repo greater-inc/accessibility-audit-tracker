@@ -4,43 +4,32 @@ import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
 
-function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-}
-
-function getHashSlug() {
+function getHashId() {
   const m = window.location.hash.match(/^#\/project\/(.+)$/)
   return m ? m[1] : null
 }
 
 export default function App() {
   const [projects, setProjects] = useLocalStorage('a11y-projects', [])
-  const [activeProjectId, setActiveProjectId] = useState(null)
+  const [activeProjectId, setActiveProjectId] = useState(getHashId)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
 
-  // Sync hash → active project (on load and hash changes)
   useEffect(() => {
-    function resolve() {
-      const slug = getHashSlug()
-      if (!slug) { setActiveProjectId(null); return }
-      const match = projects.find((p) => slugify(p.name) === slug)
-      setActiveProjectId(match ? match.id : null)
-    }
-    resolve()
-    window.addEventListener('hashchange', resolve)
-    return () => window.removeEventListener('hashchange', resolve)
-  }, [projects])
-
-  // Sync active project → hash
-  useEffect(() => {
-    const project = projects.find((p) => p.id === activeProjectId)
-    const newHash = project ? `#/project/${slugify(project.name)}` : '#'
+    const newHash = activeProjectId ? `#/project/${activeProjectId}` : '#'
     if (window.location.hash !== newHash) window.location.hash = newHash
-  }, [activeProjectId, projects])
+  }, [activeProjectId])
+
+  useEffect(() => {
+    function onHashChange() {
+      setActiveProjectId(getHashId())
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
 
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
