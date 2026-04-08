@@ -184,7 +184,7 @@ export default function AuditTable({
                   <th
                     key={cat.id}
                     colSpan={colSpan}
-                    className={`border-b border-r border-gray-700 text-center align-middle px-0 overflow-hidden max-w-0 ${cat.headerBg}`}
+                    className={`border-b border-r border-gray-700 text-center align-middle px-0 overflow-hidden ${cat.headerBg}`}
                   >
                     {/* Category toggle button — full cell is clickable */}
                     <button
