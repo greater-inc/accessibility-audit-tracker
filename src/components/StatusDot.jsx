@@ -24,8 +24,14 @@ export default function StatusDot({ status = 'not-started', onChange, size = 'md
       onKeyDown={onChange ? handleKeyDown : undefined}
       title={cfg.label}
       aria-label={`Status: ${cfg.label}${onChange ? '. Click to change.' : ''}`}
-      className={`${sz} rounded-full ${cfg.dot} ${onChange ? 'cursor-pointer hover:opacity-80 hover:scale-110 active:scale-95' : 'cursor-default'} transition-transform block mx-auto focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`}
-    />
+      className={`${sz} rounded-full ${cfg.dot} ${onChange ? 'cursor-pointer hover:opacity-80 hover:scale-110 active:scale-95' : 'cursor-default'} transition-transform flex items-center justify-center mx-auto focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`}
+    >
+      {cfg.symbol && (
+        <span className="text-white font-bold leading-none select-none" style={{ fontSize: cfg.symbol === 'N/A' ? '0.45rem' : '0.6rem' }}>
+          {cfg.symbol}
+        </span>
+      )}
+    </button>
   )
 }
 
@@ -33,7 +39,13 @@ export function StatusBadge({ status = 'not-started' }) {
   const cfg = STATUS_CONFIG[status]
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${cfg.text}`}>
-      <span className={`w-2 h-2 rounded-full ${cfg.dot} inline-block`} />
+      <span className={`w-2 h-2 rounded-full ${cfg.dot} inline-flex items-center justify-center`}>
+        {cfg.symbol && (
+          <span className="text-white font-bold leading-none select-none" style={{ fontSize: '0.4rem' }}>
+            {cfg.symbol}
+          </span>
+        )}
+      </span>
       {cfg.label}
     </span>
   )
