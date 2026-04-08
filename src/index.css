@@ -10,5 +10,10 @@
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .stat-scroll { scrollbar-width: thin; scrollbar-color: #4b5563 transparent; }
+  .stat-scroll::-webkit-scrollbar { height: 4px; }
+  .stat-scroll::-webkit-scrollbar-track { background: transparent; }
+  .stat-scroll::-webkit-scrollbar-thumb { background-color: #4b5563; border-radius: 9999px; }
 }
 

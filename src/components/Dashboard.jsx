@@ -14,7 +14,7 @@ export default function Dashboard({ project }) {
 
   return (
     <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-      <div ref={scrollRef} onWheel={handleWheel} className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+      <div ref={scrollRef} onWheel={handleWheel} className="flex gap-3 overflow-x-auto pb-2 stat-scroll">
         <StatCard label="Pages" value={stats.pageCount} />
         <StatCard
           label="Passed"
