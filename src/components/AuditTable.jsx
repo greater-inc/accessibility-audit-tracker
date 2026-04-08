@@ -94,7 +94,7 @@ export default function AuditTable({
       </div>
 
       {/* Scrollable table */}
-      <div className="overflow-auto flex-1 bg-gray-950">
+      <div className="overflow-auto flex-1 bg-gray-950 table-scroll">
         <table className="border-collapse text-xs w-max min-w-full">
           <thead>
             {/*

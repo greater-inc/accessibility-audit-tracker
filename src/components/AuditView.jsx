@@ -31,7 +31,7 @@ export default function AuditView({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950 transition-colors">
+    <div className="h-screen flex flex-col bg-white dark:bg-gray-950 transition-colors overflow-hidden">
       {/* Header */}
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-3 shrink-0">
         <button
