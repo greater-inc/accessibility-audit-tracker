@@ -1,11 +1,20 @@
+import { useRef } from 'react'
 import { projectStats } from '../utils/stats'
 
 export default function Dashboard({ project }) {
   const stats = projectStats(project)
+  const scrollRef = useRef(null)
+
+  function handleWheel(e) {
+    if (e.deltaY !== 0) {
+      e.preventDefault()
+      scrollRef.current.scrollLeft += e.deltaY
+    }
+  }
 
   return (
     <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-      <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+      <div ref={scrollRef} onWheel={handleWheel} className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
         <StatCard label="Pages" value={stats.pageCount} />
         <StatCard
           label="Passed"
