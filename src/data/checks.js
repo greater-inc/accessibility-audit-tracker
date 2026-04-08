@@ -128,11 +128,12 @@ export const CATEGORIES = [
 
 export const ALL_CHECKS = CATEGORIES.flatMap(c => c.checks)
 
-export const STATUS_CYCLE = ['not-started', 'pass', 'fail', 'na']
+export const STATUS_CYCLE = ['not-started', 'pass', 'fail', 'in-progress', 'na']
 
 export const STATUS_CONFIG = {
-  'not-started': { label: '—',      dot: 'bg-gray-300 border border-gray-400 dark:bg-gray-600 dark:border-gray-500', text: 'text-gray-400 dark:text-gray-500' },
-  'pass':        { label: 'Done',   dot: 'bg-green-500',                                                               text: 'text-green-700 dark:text-green-400' },
-  'fail':        { label: 'Failed', dot: 'bg-red-500',                                                                 text: 'text-red-700 dark:text-red-400' },
-  'na':          { label: 'NA',     dot: 'bg-gray-400 dark:bg-gray-500',                                               text: 'text-gray-500 dark:text-gray-400' },
+  'not-started': { label: 'Not started', dot: 'bg-gray-300 border border-gray-400 dark:bg-gray-600 dark:border-gray-500', text: 'text-gray-400 dark:text-gray-500' },
+  'pass':        { label: 'Pass',        dot: 'bg-green-500',                                                               text: 'text-green-700 dark:text-green-400' },
+  'fail':        { label: 'Fail',        dot: 'bg-red-500',                                                                 text: 'text-red-700 dark:text-red-400' },
+  'in-progress': { label: 'In progress', dot: 'bg-amber-400',                                                               text: 'text-amber-700 dark:text-amber-400' },
+  'na':          { label: 'N/A',         dot: 'bg-gray-400 dark:bg-gray-500',                                               text: 'text-gray-500 dark:text-gray-400' },
 }

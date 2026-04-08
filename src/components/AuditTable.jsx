@@ -63,7 +63,7 @@ export default function AuditTable({
 
   const pages = project.pages.filter((page) => {
     if (filter === 'failures') return pageStats(page).fail > 0
-    if (filter === 'clear') { const s = pageStats(page); return s.fail === 0 && s.active === s.pass }
+    if (filter === 'clear') { const s = pageStats(page); return s.fail === 0 && s.inProgress === 0 }
     return true
   })
 
@@ -310,7 +310,7 @@ export default function AuditTable({
                       const cs = categoryPageStats(page, col.cat)
                       const active = cs.total - cs.na
                       const score = active > 0 ? Math.round((cs.pass / active) * 100) : 100
-                      const colour = cs.fail > 0 ? 'text-red-400' : score === 100 && active > 0 ? 'text-green-400' : 'text-gray-500'
+                      const colour = cs.fail > 0 ? 'text-red-400' : cs.inProgress > 0 ? 'text-amber-400' : score === 100 && active > 0 ? 'text-green-400' : 'text-gray-500'
                       return (
                         <td key={`summary-${col.cat.id}`} className="border-b border-r border-gray-800 px-2 py-2 text-center align-middle">
                           <div className={`text-xs font-semibold ${colour}`}>

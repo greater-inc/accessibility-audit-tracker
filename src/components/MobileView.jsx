@@ -11,7 +11,7 @@ export default function MobileView({ project, filter, onUpdateCheck, onUpdateNot
 
   const pages = project.pages.filter((page) => {
     if (filter === 'failures') return pageStats(page).fail > 0
-    if (filter === 'clear') { const s = pageStats(page); return s.fail === 0 && s.active === s.pass }
+    if (filter === 'clear') { const s = pageStats(page); return s.fail === 0 && s.inProgress === 0 }
     return true
   })
 
@@ -74,9 +74,10 @@ export default function MobileView({ project, filter, onUpdateCheck, onUpdateNot
         </div>
 
         <div className="flex gap-3 px-4 py-2 bg-gray-900 border-b border-gray-800 text-xs shrink-0">
-          <span className="text-green-400 font-medium">{pStats.pass} done</span>
-          <span className="text-red-400 font-medium">{pStats.fail} failed</span>
-          <span className="text-gray-500">{pStats.na} NA</span>
+          <span className="text-green-400 font-medium">{pStats.pass} pass</span>
+          <span className="text-red-400 font-medium">{pStats.fail} fail</span>
+          <span className="text-amber-400 font-medium">{pStats.inProgress} in progress</span>
+          <span className="text-gray-500">{pStats.na} N/A</span>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -91,8 +92,9 @@ export default function MobileView({ project, filter, onUpdateCheck, onUpdateNot
                 >
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cat.colorClass}`}>{cat.name}</span>
                   <div className="flex-1 flex items-center gap-2 text-xs">
-                    {cs.fail > 0 && <span className="text-red-400 font-medium">{cs.fail} failed</span>}
-                    {cs.pass > 0 && <span className="text-green-400">{cs.pass} done</span>}
+                    {cs.fail > 0 && <span className="text-red-400 font-medium">{cs.fail} fail</span>}
+                    {cs.pass > 0 && <span className="text-green-400">{cs.pass} pass</span>}
+                    {cs.inProgress > 0 && <span className="text-amber-400">{cs.inProgress} in prog</span>}
                   </div>
                   <span className="text-gray-500 text-xs">{isOpen ? '▾' : '▸'}</span>
                 </button>
@@ -141,11 +143,12 @@ export default function MobileView({ project, filter, onUpdateCheck, onUpdateNot
                   <div className="font-medium text-gray-100 text-sm truncate">{page.name}</div>
                   {page.url && <div className="text-xs text-gray-500 truncate mt-0.5">{page.url}</div>}
                   <div className="flex gap-2 mt-1.5 text-xs">
-                    {stats.fail > 0 && <span className="text-red-400 font-medium">{stats.fail} failed</span>}
-                    {stats.fail === 0 && stats.pass > 0 && (
-                      <span className="text-green-400">{stats.pass} done</span>
+                    {stats.fail > 0 && <span className="text-red-400 font-medium">{stats.fail} fail</span>}
+                    {stats.inProgress > 0 && <span className="text-amber-400">{stats.inProgress} in prog</span>}
+                    {stats.fail === 0 && stats.inProgress === 0 && stats.pass > 0 && (
+                      <span className="text-green-400">{stats.pass} passed</span>
                     )}
-                    {stats.fail === 0 && stats.pass === 0 && (
+                    {stats.fail === 0 && stats.inProgress === 0 && stats.pass === 0 && (
                       <span className="text-gray-600">Not started</span>
                     )}
                   </div>
