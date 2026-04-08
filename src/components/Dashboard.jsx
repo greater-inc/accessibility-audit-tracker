@@ -22,8 +22,7 @@ export default function Dashboard({ project }) {
           sub={`${stats.totalPass} of ${stats.totalActive} active checks`}
           color={stats.pctPassed >= 90 ? 'green' : stats.pctPassed >= 60 ? 'amber' : 'red'}
         />
-        <StatCard label="Failures" value={stats.totalFail} color={stats.totalFail === 0 ? 'green' : 'red'} />
-        <StatCard label="In progress" value={stats.totalInProgress} color={stats.totalInProgress > 0 ? 'amber' : 'default'} />
+        <StatCard label="Failed" value={stats.totalFail} color={stats.totalFail === 0 ? 'green' : 'red'} />
         <StatCard
           label="Pages clear"
           value={`${stats.pagesClear} / ${stats.pageCount}`}
