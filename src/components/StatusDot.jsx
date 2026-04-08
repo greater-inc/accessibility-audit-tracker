@@ -1,29 +1,31 @@
 import { STATUS_CYCLE, STATUS_CONFIG } from '../data/checks'
 
-export default function StatusDot({ status = 'not-started', onChange }) {
-  if (!onChange) {
-    const cfg = STATUS_CONFIG[status]
-    return <span className={`w-5 h-5 rounded-full ${cfg.dot} block mx-auto`} title={cfg.label} />
+export default function StatusDot({ status = 'not-started', onChange, size = 'md' }) {
+  const cfg = STATUS_CONFIG[status]
+  const sz = size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5'
+
+  function handleClick(e) {
+    e.stopPropagation()
+    const idx = STATUS_CYCLE.indexOf(status)
+    onChange(STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length])
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick(e)
+    }
   }
 
   return (
-    <div className="relative mx-auto w-fit">
-      <select
-        value={status}
-        onChange={(e) => onChange(e.target.value)}
-        onClick={(e) => e.stopPropagation()}
-        className="appearance-none cursor-pointer rounded-full w-5 h-5 border-0 bg-transparent p-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 absolute inset-0 opacity-0 z-10"
-        aria-label={`Status: ${STATUS_CONFIG[status].label}`}
-      >
-        {STATUS_CYCLE.map((s) => (
-          <option key={s} value={s}>{STATUS_CONFIG[s].label}</option>
-        ))}
-      </select>
-      <span
-        className={`w-5 h-5 rounded-full ${STATUS_CONFIG[status].dot} block hover:scale-110 transition-transform`}
-        title={STATUS_CONFIG[status].label}
-      />
-    </div>
+    <button
+      type="button"
+      onClick={onChange ? handleClick : undefined}
+      onKeyDown={onChange ? handleKeyDown : undefined}
+      title={cfg.label}
+      aria-label={`Status: ${cfg.label}${onChange ? '. Click to change.' : ''}`}
+      className={`${sz} rounded-full ${cfg.dot} ${onChange ? 'cursor-pointer hover:opacity-80 hover:scale-110 active:scale-95' : 'cursor-default'} transition-transform block mx-auto focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`}
+    />
   )
 }
 
