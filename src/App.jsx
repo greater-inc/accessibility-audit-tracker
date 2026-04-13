@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorage } from './hooks/useLocalStorage'
+import { useFirestoreProjects } from './hooks/useFirestoreProjects'
 import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
@@ -10,7 +11,7 @@ function getHashId() {
 }
 
 export default function App() {
-  const [projects, setProjects] = useLocalStorage('a11y-projects', [])
+  const [projects, setProjects, loading] = useFirestoreProjects()
   const [activeProjectId, setActiveProjectId] = useState(getHashId)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
@@ -30,6 +31,8 @@ export default function App() {
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
+
+  if (loading) return null
 
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
