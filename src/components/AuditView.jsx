@@ -34,7 +34,7 @@ export default function AuditView({
 
   function handleCopyClientLink() {
     const token = project.shareToken || onEnsureShareToken(project.id)
-    const url = `${window.location.origin}${window.location.pathname}#/share/${token}`
+    const url = `https://greater-inc.github.io/accessview/#${token}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2000)
