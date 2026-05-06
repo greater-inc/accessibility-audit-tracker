@@ -5,11 +5,11 @@ function uid() {
 }
 
 export function createProject(name) {
-  return { id: uid(), name, createdAt: new Date().toISOString(), pages: [] }
+  return { id: uid(), name, createdAt: new Date().toISOString(), pages: [], shareToken: uid() }
 }
 
 export function createPage(name, url = '') {
   const checks = {}
   ALL_CHECKS.forEach((c) => { checks[c.id] = 'not-started' })
-  return { id: uid(), name, url, notes: '', checks }
+  return { id: uid(), name, url, notes: '', checks, screenshots: [] }
 }

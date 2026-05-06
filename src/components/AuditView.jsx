@@ -14,11 +14,13 @@ const FILTERS = [
 export default function AuditView({
   project, isDark, onToggleDark, onBack,
   onAddPage, onDeletePage, onUpdateCheck, onUpdateNotes, onRenamePage,
+  onAddScreenshot, onRemoveScreenshot, onEnsureShareToken,
 }) {
   const [filter, setFilter] = useState('all')
   const [showAddPage, setShowAddPage] = useState(false)
   const [newPageName, setNewPageName] = useState('')
   const [newPageUrl, setNewPageUrl] = useState('')
+  const [linkCopied, setLinkCopied] = useState(false)
 
   function handleAddPage(e) {
     e.preventDefault()
@@ -28,6 +30,15 @@ export default function AuditView({
     setNewPageName('')
     setNewPageUrl('')
     setShowAddPage(false)
+  }
+
+  function handleCopyClientLink() {
+    const token = project.shareToken || onEnsureShareToken(project.id)
+    const url = `${window.location.origin}${window.location.pathname}#/share/${token}`
+    navigator.clipboard.writeText(url).then(() => {
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    })
   }
 
   return (
@@ -44,7 +55,18 @@ export default function AuditView({
         <h1 className="font-semibold text-gray-900 dark:text-gray-100 truncate flex-1 text-sm sm:text-base">
           {project.name}
         </h1>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+          <button
+            onClick={handleCopyClientLink}
+            className={`text-xs border px-3 py-1.5 rounded-lg transition-colors font-medium ${
+              linkCopied
+                ? 'border-green-500 text-green-400 bg-green-900/20'
+                : 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
+            title="Copy a read-only link for clients"
+          >
+            {linkCopied ? 'Link copied!' : 'Client link'}
+          </button>
           <button
             onClick={() => exportProjectCSV(project)}
             className="text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 px-3 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
@@ -130,6 +152,8 @@ export default function AuditView({
           onUpdateNotes={onUpdateNotes}
           onDeletePage={onDeletePage}
           onRenamePage={onRenamePage}
+          onAddScreenshot={onAddScreenshot}
+          onRemoveScreenshot={onRemoveScreenshot}
         />
       </div>
 

@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /screenshots/{allPaths=**} {
+      // Anyone with the app or a client share link can view screenshots
+      allow read: if true;
+      // Only sessions authenticated (even anonymously) via the app can upload/delete
+      allow write: if request.auth != null;
+    }
+  }
+}
