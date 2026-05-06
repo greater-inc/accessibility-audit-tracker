@@ -1,6 +1,6 @@
 import { STATUS_CYCLE, STATUS_CONFIG } from '../data/checks'
 
-export default function StatusDot({ status = 'not-started', onChange, size = 'md' }) {
+export default function StatusDot({ status = 'not-started', onChange, size = 'md', readOnly = false }) {
   const cfg = STATUS_CONFIG[status]
   const sz = size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5'
 
@@ -20,11 +20,11 @@ export default function StatusDot({ status = 'not-started', onChange, size = 'md
   return (
     <button
       type="button"
-      onClick={onChange ? handleClick : undefined}
-      onKeyDown={onChange ? handleKeyDown : undefined}
+      onClick={!readOnly && onChange ? handleClick : undefined}
+      onKeyDown={!readOnly && onChange ? handleKeyDown : undefined}
       title={cfg.label}
-      aria-label={`Status: ${cfg.label}${onChange ? '. Click to change.' : ''}`}
-      className={`${sz} rounded-full ${cfg.dot} ${onChange ? 'cursor-pointer hover:opacity-80 hover:scale-110 active:scale-95' : 'cursor-default'} transition-transform flex items-center justify-center mx-auto focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`}
+      aria-label={`Status: ${cfg.label}${!readOnly && onChange ? '. Click to change.' : ''}`}
+      className={`${sz} rounded-full ${cfg.dot} ${!readOnly && onChange ? 'cursor-pointer hover:opacity-80 hover:scale-110 active:scale-95' : 'cursor-default'} transition-transform flex items-center justify-center mx-auto focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500`}
     >
       {cfg.symbol && (
         <span className="text-white font-bold leading-none select-none" style={{ fontSize: cfg.symbol === 'N/A' ? '0.45rem' : '0.6rem' }}>

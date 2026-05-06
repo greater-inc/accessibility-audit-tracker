@@ -4,15 +4,23 @@ import { useFirestoreProjects } from './hooks/useFirestoreProjects'
 import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
+import ClientView from './components/ClientView'
 
-function getHashId() {
-  const m = window.location.hash.match(/^#\/project\/(.+)$/)
-  return m ? m[1] : null
+function parseHash() {
+  const projectMatch = window.location.hash.match(/^#\/project\/(.+)$/)
+  if (projectMatch) return { type: 'project', id: projectMatch[1] }
+  const shareMatch = window.location.hash.match(/^#\/share\/(.+)$/)
+  if (shareMatch) return { type: 'share', token: shareMatch[1] }
+  return { type: 'list' }
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10)
 }
 
 export default function App() {
   const [projects, setProjects, loading] = useFirestoreProjects()
-  const [activeProjectId, setActiveProjectId] = useState(getHashId)
+  const [route, setRoute] = useState(parseHash)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
   useEffect(() => {
@@ -20,13 +28,15 @@ export default function App() {
   }, [isDark])
 
   useEffect(() => {
-    const newHash = activeProjectId ? `#/project/${activeProjectId}` : '#'
+    let newHash = '#'
+    if (route.type === 'project') newHash = `#/project/${route.id}`
+    if (route.type === 'share') newHash = `#/share/${route.token}`
     if (window.location.hash !== newHash) window.location.hash = newHash
-  }, [activeProjectId])
+  }, [route])
 
   useEffect(() => {
     function onHashChange() {
-      setActiveProjectId(getHashId())
+      setRoute(parseHash())
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
@@ -34,6 +44,24 @@ export default function App() {
 
   if (loading) return null
 
+  // --- Share / read-only view ---
+  if (route.type === 'share') {
+    const sharedProject = projects.find((p) => p.shareToken === route.token)
+    if (!sharedProject) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-400">
+          <div className="text-center">
+            <div className="text-5xl mb-4">🔒</div>
+            <p className="text-lg font-medium text-gray-300">Link not found</p>
+            <p className="text-sm mt-1">This client link may have expired or been removed.</p>
+          </div>
+        </div>
+      )
+    }
+    return <ClientView project={sharedProject} />
+  }
+
+  const activeProjectId = route.type === 'project' ? route.id : null
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
   function addProject(name) {
@@ -41,7 +69,7 @@ export default function App() {
   }
   function deleteProject(id) {
     setProjects((prev) => prev.filter((p) => p.id !== id))
-    if (activeProjectId === id) setActiveProjectId(null)
+    if (activeProjectId === id) setRoute({ type: 'list' })
   }
   function renameProject(id, name) {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, name } : p)))
@@ -78,6 +106,33 @@ export default function App() {
       pages: p.pages.map((pg) => (pg.id === pageId ? { ...pg, notes } : pg)),
     }))
   }
+  function addScreenshot(pageId, screenshot) {
+    updateActive((p) => ({
+      ...p,
+      pages: p.pages.map((pg) =>
+        pg.id === pageId
+          ? { ...pg, screenshots: [...(pg.screenshots ?? []), screenshot] }
+          : pg,
+      ),
+    }))
+  }
+  function removeScreenshot(pageId, screenshotId) {
+    updateActive((p) => ({
+      ...p,
+      pages: p.pages.map((pg) =>
+        pg.id === pageId
+          ? { ...pg, screenshots: (pg.screenshots ?? []).filter((s) => s.id !== screenshotId) }
+          : pg,
+      ),
+    }))
+  }
+  function ensureShareToken(projectId) {
+    const token = uid()
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, shareToken: token } : p)),
+    )
+    return token
+  }
 
   if (!activeProject) {
     return (
@@ -85,7 +140,7 @@ export default function App() {
         projects={projects}
         isDark={isDark}
         onToggleDark={() => setIsDark((d) => !d)}
-        onSelect={setActiveProjectId}
+        onSelect={(id) => setRoute({ type: 'project', id })}
         onAdd={addProject}
         onDelete={deleteProject}
         onRename={renameProject}
@@ -98,12 +153,15 @@ export default function App() {
       project={activeProject}
       isDark={isDark}
       onToggleDark={() => setIsDark((d) => !d)}
-      onBack={() => setActiveProjectId(null)}
+      onBack={() => setRoute({ type: 'list' })}
       onAddPage={addPage}
       onDeletePage={deletePage}
       onUpdateCheck={updateCheck}
       onUpdateNotes={updateNotes}
       onRenamePage={renamePage}
+      onAddScreenshot={addScreenshot}
+      onRemoveScreenshot={removeScreenshot}
+      onEnsureShareToken={ensureShareToken}
     />
   )
 }
