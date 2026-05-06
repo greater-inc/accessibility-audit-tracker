@@ -5,7 +5,7 @@ function uid() {
 }
 
 export function createProject(name) {
-  return { id: uid(), name, createdAt: new Date().toISOString(), pages: [], shareToken: uid() }
+  return { id: uid(), name, createdAt: new Date().toISOString(), pages: [], shareToken: crypto.randomUUID() }
 }
 
 export function createPage(name, url = '') {
