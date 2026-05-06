@@ -127,7 +127,7 @@ export default function App() {
     }))
   }
   function ensureShareToken(projectId) {
-    const token = uid()
+    const token = crypto.randomUUID()
     setProjects((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, shareToken: token } : p)),
     )
