@@ -34,7 +34,8 @@ export default function AuditView({
 
   function handleCopyClientLink() {
     const token = project.shareToken || onEnsureShareToken(project.id)
-    const url = `${window.location.origin}${window.location.pathname}#/share/${token}`
+    const base = `${window.location.origin}${window.location.pathname.replace(/\/?$/, '/')}client.html`
+    const url = `${base}#${token}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2000)

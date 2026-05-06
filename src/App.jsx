@@ -4,14 +4,10 @@ import { useFirestoreProjects } from './hooks/useFirestoreProjects'
 import { createProject, createPage } from './utils/factories'
 import ProjectList from './components/ProjectList'
 import AuditView from './components/AuditView'
-import ClientView from './components/ClientView'
 
 function parseHash() {
-  const projectMatch = window.location.hash.match(/^#\/project\/(.+)$/)
-  if (projectMatch) return { type: 'project', id: projectMatch[1] }
-  const shareMatch = window.location.hash.match(/^#\/share\/(.+)$/)
-  if (shareMatch) return { type: 'share', token: shareMatch[1] }
-  return { type: 'list' }
+  const m = window.location.hash.match(/^#\/project\/(.+)$/)
+  return m ? m[1] : null
 }
 
 function uid() {
@@ -20,7 +16,7 @@ function uid() {
 
 export default function App() {
   const [projects, setProjects, loading] = useFirestoreProjects()
-  const [route, setRoute] = useState(parseHash)
+  const [activeProjectId, setActiveProjectId] = useState(parseHash)
   const [isDark, setIsDark] = useLocalStorage('a11y-dark-mode', true)
 
   useEffect(() => {
@@ -28,40 +24,18 @@ export default function App() {
   }, [isDark])
 
   useEffect(() => {
-    let newHash = '#'
-    if (route.type === 'project') newHash = `#/project/${route.id}`
-    if (route.type === 'share') newHash = `#/share/${route.token}`
+    const newHash = activeProjectId ? `#/project/${activeProjectId}` : '#'
     if (window.location.hash !== newHash) window.location.hash = newHash
-  }, [route])
+  }, [activeProjectId])
 
   useEffect(() => {
-    function onHashChange() {
-      setRoute(parseHash())
-    }
+    function onHashChange() { setActiveProjectId(parseHash()) }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   if (loading) return null
 
-  // --- Share / read-only view ---
-  if (route.type === 'share') {
-    const sharedProject = projects.find((p) => p.shareToken === route.token)
-    if (!sharedProject) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-400">
-          <div className="text-center">
-            <div className="text-5xl mb-4">🔒</div>
-            <p className="text-lg font-medium text-gray-300">Link not found</p>
-            <p className="text-sm mt-1">This client link may have expired or been removed.</p>
-          </div>
-        </div>
-      )
-    }
-    return <ClientView project={sharedProject} />
-  }
-
-  const activeProjectId = route.type === 'project' ? route.id : null
   const activeProject = projects.find((p) => p.id === activeProjectId)
 
   function addProject(name) {
@@ -69,7 +43,7 @@ export default function App() {
   }
   function deleteProject(id) {
     setProjects((prev) => prev.filter((p) => p.id !== id))
-    if (activeProjectId === id) setRoute({ type: 'list' })
+    if (activeProjectId === id) setActiveProjectId(null)
   }
   function renameProject(id, name) {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, name } : p)))
@@ -140,7 +114,7 @@ export default function App() {
         projects={projects}
         isDark={isDark}
         onToggleDark={() => setIsDark((d) => !d)}
-        onSelect={(id) => setRoute({ type: 'project', id })}
+        onSelect={setActiveProjectId}
         onAdd={addProject}
         onDelete={deleteProject}
         onRename={renameProject}
@@ -153,7 +127,7 @@ export default function App() {
       project={activeProject}
       isDark={isDark}
       onToggleDark={() => setIsDark((d) => !d)}
-      onBack={() => setRoute({ type: 'list' })}
+      onBack={() => setActiveProjectId(null)}
       onAddPage={addPage}
       onDeletePage={deletePage}
       onUpdateCheck={updateCheck}
